@@ -1,0 +1,36 @@
+# MATLAB archivos temporales
+*.asv
+*.m~
+*~
+
+# Archivos generados por los scripts
+*.csv
+*.png
+*.mat
+
+# Excluir archivos en carpetas específicas
+data/*.csv
+data/*.mat
+results/*.png
+results/*.fig
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores y IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# MATLAB específico
+*.slxc
+slprj/
+*.autosave
+
+# Mantener carpetas vacías en Git
+!data/.gitkeep
+!results/.gitkeep
