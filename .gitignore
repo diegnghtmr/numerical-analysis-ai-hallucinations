@@ -3,17 +3,6 @@
 *.m~
 *~
 
-# Archivos generados por los scripts
-*.csv
-*.png
-*.mat
-
-# Excluir archivos en carpetas específicas
-data/*.csv
-data/*.mat
-results/*.png
-results/*.fig
-
 # Sistema operativo
 .DS_Store
 Thumbs.db

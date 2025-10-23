@@ -61,8 +61,8 @@ function interpolacion_polinomica()
     % Los coeficientes corresponden a la forma de Newton:
     % p(x) = c0 + c1*(x-x0) + c2*(x-x0)*(x-x1) + ...
     nCoeff = length(coeff_newton);
-    var_names = strcat('c', string(0:nCoeff-1));
-    tbl_coef = array2table(coeff_newton', 'VariableNames', var_names);
+    var_names = cellstr(strcat('c', string(0:nCoeff-1)))';
+    tbl_coef = array2table(coeff_newton(:)', 'VariableNames', var_names);
     writetable(tbl_coef, 'tabla_coeficientes_newton.csv');
 
     % Tabla de evaluación en la malla
@@ -75,7 +75,7 @@ function interpolacion_polinomica()
     % -----------------------------
     n = length(X);
     idx = (1:n)';
-    loocv_results = zeros(n, 8);
+    loocv_results = zeros(n, 9);
     % Columns: idx_removed, x_removed, y_true, y_lagr_pred, y_newt_pred, y_pchip_pred, err_lagr, err_newt, err_pchip
     for i = 1:n
         % Conjunto de entrenamiento (todas menos i)
@@ -97,8 +97,8 @@ function interpolacion_polinomica()
         loocv_results(i,:) = [i, x_removed, y_true, y_lagr_pred, y_newt_pred, y_pchip_pred, err_lagr, err_newt, err_pchip];
     end
     % Convertir a tabla
-    tbl_loocv = array2table(loocv_results, 'VariableNames', {
-        'index_removed','log10_removed','rate_true','rate_lagr_pred','rate_newt_pred','rate_pchip_pred',
+    tbl_loocv = array2table(loocv_results, 'VariableNames', ...
+        {'index_removed','log10_removed','rate_true','rate_lagr_pred','rate_newt_pred','rate_pchip_pred',...
         'error_lagr','error_newton','error_pchip'});
     writetable(tbl_loocv, 'tabla_loocv.csv');
 
