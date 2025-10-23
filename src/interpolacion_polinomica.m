@@ -125,18 +125,76 @@ function interpolacion_polinomica()
     close;
 
     % Figura 2: Residuales en nodos
-    figure;
+    figure('Position', [100, 100, 900, 600]);
     % Predicciones en nodos para cada método
     y_lagr_nodes = lagrange_eval(X, Y, X);
     y_newt_nodes = newton_dd_eval(X, coeff_newton, X);
     y_pchip_nodes = interp1(X, Y, X, 'pchip');
-    bar([Y - y_lagr_nodes; Y - y_newt_nodes; Y - y_pchip_nodes]');
-    set(gca,'XTickLabel',{'7B','13B','30B','70B'});
-    xlabel('Nodo');
-    ylabel('Residual (observado - interpolado)');
-    legend({'Lagrange','Newton','PCHIP'}, 'Location','best');
-    title('Residuos de interpolación en los nodos');
+    
+    % Calcular residuos absolutos
+    residual_lagr = abs(Y - y_lagr_nodes);
+    residual_newt = abs(Y - y_newt_nodes);
+    residual_pchip = abs(Y - y_pchip_nodes);
+    
+    % Crear matriz de residuos para graficar y escalarla para mejorar la legibilidad
+    residuals_matrix = [residual_lagr; residual_newt; residual_pchip]';
+    max_residual = max(residuals_matrix(:));
+    if max_residual == 0
+        scale_exp = 0;
+        scale_factor = 1;
+    else
+        scale_exp = floor(log10(max_residual));
+        scale_factor = 10^(-scale_exp);
+    end
+    residuals_scaled = residuals_matrix * scale_factor;
+
+    % Diagrama tipo "lollipop" para resaltar zeros exactos y pequeños residuos
+    offsets = [-0.2, 0, 0.2];
+    colors = lines(3);
+    markers = {'o','s','d'};
+    stem_handles = gobjects(1,3);
+    xbase = 1:length(X);
+    hold on;
+    for k = 1:3
+        xk = xbase + offsets(k);
+        yk = residuals_scaled(:,k);
+        stem_handles(k) = stem(xk, yk, 'Color', colors(k,:), 'LineWidth', 1.3, ...
+            'Marker', markers{k}, 'MarkerFaceColor', colors(k,:), 'MarkerSize', 7);
+        zero_idx = residuals_matrix(:,k) == 0;
+        if any(zero_idx)
+            scatter(xk(zero_idx), zeros(nnz(zero_idx),1), 65, 'MarkerEdgeColor', colors(k,:), ...
+                'MarkerFaceColor', 'w', 'LineWidth', 1.2, 'HandleVisibility','off');
+            text(xk(zero_idx), zeros(nnz(zero_idx),1) + max(yk(:))*0.05 + 0.05, '0 exacto', ...
+                'HorizontalAlignment','center','VerticalAlignment','bottom','FontSize',9,'Color',colors(k,:));
+        end
+        nz_idx = ~zero_idx;
+        if any(nz_idx)
+            text(xk(nz_idx), yk(nz_idx) + max(yk(:))*0.08 + 0.05, ...
+                arrayfun(@(v) sprintf('%.2f', v), yk(nz_idx), 'UniformOutput', false), ...
+                'HorizontalAlignment','center','VerticalAlignment','bottom','FontSize',9,'Color',colors(k,:));
+        end
+    end
+    hold off;
+
+    xticks(xbase);
+    xticklabels({'7B','13B','30B','70B'});
+    xlabel('Nodo (tamaño del modelo)', 'FontSize', 12);
+    if scale_exp ~= 0
+        ylabel(sprintf('|Residual| ×10^{%d}', scale_exp), 'FontSize', 12);
+    else
+        ylabel('|Residual|', 'FontSize', 12);
+    end
+    title({'Residuos absolutos de interpolación en los nodos', ...
+           'La interpolación polinómica reproduce exactamente los datos'}, 'FontSize', 13);
+    legend(stem_handles, {'Lagrange','Newton','PCHIP'}, 'Location','northeast', 'FontSize', 11);
     grid on;
+
+    ymax = max(residuals_scaled(:));
+    if ymax == 0
+        ymax = 1;
+    end
+    ylim([0, ymax*1.3 + 0.1]);
+    
     saveas(gcf, 'fig_residuals.png');
     close;
 
