@@ -21,8 +21,8 @@
 %   procesos y ejecutar varias repeticiones usando `timeit`.
 % - Los resultados dependerán del hardware y versión de MATLAB.
 %
-% Autor: [Nombre del autor]
-% Fecha: [Fecha de creación]
+% Autores: [Diego Flores y Juan Mora]
+% Fecha: 20‑oct‑2025
 
 clear; clc;
 
@@ -119,7 +119,8 @@ rmse_fit = sqrt(mean((y_fit - y_hallu).^2));
 err_loocv = 0;
 for i = 1:numel(x_nodes)
     idx = (1:numel(x_nodes)) ~= i;
-    pp = polyfit(x_nodes(idx), y_hallu(idx), 3);
+    % Ajustar a grado 2, ya que solo hay 3 puntos en el subconjunto
+    pp = polyfit(x_nodes(idx), y_hallu(idx), 2);
     yi_pred = polyval(pp, x_nodes(i));
     err_loocv = err_loocv + (yi_pred - y_hallu(i))^2;
 end
@@ -141,8 +142,8 @@ tic;
 auc_trap = trapz(xi, yi);
 tiempo_trap = toc;
 % Remuestreo uniforme y Simpson compuesto
-M = 1000;
-xu = linspace(0,1,M);
+n_eval = 101; % Usar un número impar de puntos para tener un número par de intervalos
+xu = linspace(0,1,n_eval);
 yu = interp1(xi, yi, xu, 'pchip');
 tic;
 auc_simp = simpson_compuesto(xu, yu);
@@ -158,7 +159,7 @@ metodos{end+1} = 'Integración: Simpson';
 errores(end+1,:) = [err_simp, err_simp];
 costos(end+1) = tiempo_simp;
 evaluaciones(end+1) = numel(xu);
-notas{end+1} = sprintf('Remuestreo %d pts.', M);
+notas{end+1} = sprintf('Remuestreo %d pts.', n_eval);
 
 %% 5. Modelos de regresión (lineal y cuadrático)
 tic;

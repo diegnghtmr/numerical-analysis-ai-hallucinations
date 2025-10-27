@@ -1,0 +1,5 @@
+Model,Params,HallRate
+Llama2‑7B,7,0.056
+Llama2‑13B,13,0.059
+Llama2‑30B,30,0.033
+Llama2‑70B,70,0.051

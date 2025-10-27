@@ -12,6 +12,9 @@
 % construir los polinomios y luego evalúan los resultados sobre un
 % vector de entrada `x`.
 
+% autor: [Diego Flores y Juan Mora]
+% fecha: 20‑oct‑2025
+
 function taylor_approximation()
     % Rango de valores de entrada (logits típicos)
     x = linspace(-8, 8, 1001)';

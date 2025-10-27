@@ -25,8 +25,10 @@
 % se generan figuras que ilustran las trayectorias de C(t), el contexto
 % y la convergencia del error con respecto al tamaño de paso.
 %
-% Autor: [Nombre del autor]
-% Fecha: [Fecha de creación]
+
+% autor: [Diego Flores y Juan Mora]
+% fecha: 20‑oct‑2025
+
 
 clear; clc;
 
@@ -130,33 +132,33 @@ for h = h_values
     % Exportar curvas de C(t) para este h en archivos separados
     curva_datos = [t(:), context_vals(:), C_euler(:), C_rk4(:), C_ref_interp(:)];
     fname_curva = sprintf('curva_EDO_h_%g.csv', h);
-    writematrix([{"t", "Context", "Euler", "RK4", "Ref"}; num2cell(curva_datos)], fname_curva);
+    writecell([{"t", "Context", "Euler", "RK4", "Ref"}; num2cell(curva_datos)], fname_curva);
 end
 
 %% Exportar tabla de errores a CSV
 % Columnas: [h, N, err_euler_max, err_euler_end, err_rk4_max, err_rk4_end]
 tabla_header = {"h", "N", "ErrorEulerMax", "ErrorEulerFin", "ErrorRK4Max", "ErrorRK4Fin"};
-writematrix([tabla_header; num2cell(tabla_errores)], 'tabla_errores_EDO.csv');
+writecell([tabla_header; num2cell(tabla_errores)], 'tabla_errores_EDO.csv');
 
 %% Exportar tabla de detalle de valores finales
 detalle_header = {"h", "C_euler_fin", "C_rk4_fin", "C_ref_fin"};
-writematrix([detalle_header; num2cell(tabla_detalle)], 'tabla_detalle_EDO.csv');
+writecell([detalle_header; num2cell(tabla_detalle)], 'tabla_detalle_EDO.csv');
 
 %% Dibujar gráficas
 % 1. Solución C(t) para el paso más grande y más pequeño
 h_show = [h_values(1), h_values(end)];
 fig1 = figure('Name','C(t) y Contexto para distintos h','NumberTitle','off');
 hold on;
-plot(t_ref, C_ref, 'k', 'LineWidth', 1.5, 'DisplayName','Referencia (RK4 h_{ref})');
+plot(t_ref, C_ref, 'm', 'LineWidth', 1.5, 'DisplayName','Referencia (RK4 h_{ref})');
 colores = lines(numel(h_show));
 for j = 1:numel(h_show)
     h = h_show(j);
-    % cargar curva desde CSV
+    % cargar curva desde CSV usando readtable para manejar encabezados
     fname_curva = sprintf('curva_EDO_h_%g.csv', h);
-    data = readmatrix(fname_curva);
-    t_tmp  = data(2:end,1);
-    C_e    = data(2:end,3);
-    C_r    = data(2:end,4);
+    data_table = readtable(fname_curva);
+    t_tmp  = data_table.t;
+    C_e    = data_table.Euler;
+    C_r    = data_table.RK4;
     plot(t_tmp, C_e, '--', 'Color', colores(j,:), 'LineWidth', 1.2, 'DisplayName', sprintf('Euler h=%.3f', h));
     plot(t_tmp, C_r, '-',  'Color', colores(j,:), 'LineWidth', 1.5, 'DisplayName', sprintf('RK4 h=%.3f', h));
 end

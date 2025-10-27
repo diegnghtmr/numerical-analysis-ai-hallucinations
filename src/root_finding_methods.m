@@ -11,6 +11,10 @@
 % v2). A partir de estas puntuaciones se calculan las métricas por
 % umbral, se interpolan con PCHIP y se aplican los métodos numéricos.
 
+% autor: [Diego Flores y Juan Mora]
+% fecha: 20‑oct‑2025
+
+
 function root_finding_methods()
     % ----------------------------
     % 1. Generación del dataset

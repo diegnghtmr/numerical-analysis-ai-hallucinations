@@ -7,8 +7,9 @@
 % error y criterio de información, y se generan tablas y figuras
 % relacionadas con los coeficientes, predicciones y residuales.
 
-% Autores: [Tu Nombre o grupo]
+% Autores: [Diego Flores y Juan Mora]
 % Fecha: 20‑oct‑2025
+
 
 function analisis_regresion()
     %% 1. Definición de datos
@@ -36,62 +37,71 @@ function analisis_regresion()
     % Variable explicativa: log10 de los parámetros
     T.LogParams = log10(T.Params);
 
-    %% 2. División train/test y preparación de variables
-    % Se utiliza una partición aleatoria (80% train, 20% test) con semilla fija
-    rng(1);
-    cv = cvpartition(height(T), 'HoldOut', 0.2);
-    idxTrain = training(cv);
-    idxTest  = test(cv);
-    T_train = T(idxTrain,:);
-    T_test  = T(idxTest,:);
+    %% 2. Preparación de variables
+    X_full = T.LogParams;
+    Y_full = T.HallRate;
 
-    % Matriz de diseño para modelos lineal y cuadrático
-    X_train = T_train.LogParams;
-    Y_train = T_train.HallRate;
-    X_test  = T_test.LogParams;
-    Y_test  = T_test.HallRate;
+    %% 3. Ajuste de modelos de regresión y validación LOOCV
+    % Debido al pequeño tamaño del dataset, se utiliza Leave-One-Out Cross-Validation (LOOCV)
+    % en lugar de una división train/test fija.
 
-    %% 3. Ajuste de modelos de regresión
-    % Modelo lineal: Y = beta0 + beta1*X
-    mdl_lin = fitlm(X_train, Y_train, 'linear', 'Intercept', true);
-    % Modelo cuadrático: Y = beta0 + beta1*X + beta2*X^2
-    mdl_quad = fitlm([X_train X_train.^2], Y_train, 'Intercept', true);
+    n_samples = height(T);
+    Y_pred_lin_loocv = zeros(n_samples, 1);
+    Y_pred_quad_loocv = zeros(n_samples, 1);
 
-    % Coeficientes y intervalos de confianza
+    for i = 1:n_samples
+        % Índices para esta iteración de LOOCV
+        idxTrain = true(n_samples, 1);
+        idxTrain(i) = false;
+        idxTest = ~idxTrain;
+
+        X_train = X_full(idxTrain);
+        Y_train = Y_full(idxTrain);
+        X_test = X_full(idxTest);
+
+        % Ajuste de modelos con el subconjunto de entrenamiento
+        mdl_lin_loocv = fitlm(X_train, Y_train, 'linear', 'Intercept', true);
+        mdl_quad_loocv = fitlm([X_train X_train.^2], Y_train, 'Intercept', true);
+
+        % Predicción sobre el dato de prueba
+        Y_pred_lin_loocv(i) = predict(mdl_lin_loocv, X_test);
+        Y_pred_quad_loocv(i) = predict(mdl_quad_loocv, [X_test X_test^2]);
+    end
+
+    % Ajuste de modelos con todos los datos para análisis de coeficientes y gráficos
+    mdl_lin = fitlm(X_full, Y_full, 'linear', 'Intercept', true);
+    mdl_quad = fitlm([X_full X_full.^2], Y_full, 'Intercept', true);
+
+    % Coeficientes y intervalos de confianza (del modelo completo)
     coef_lin  = mdl_lin.Coefficients;
     ci_lin    = coefCI(mdl_lin, 0.05);
     coef_quad = mdl_quad.Coefficients;
     ci_quad   = coefCI(mdl_quad, 0.05);
 
-    % Predicciones en train y test
-    Y_pred_lin_train  = predict(mdl_lin, X_train);
-    Y_pred_lin_test   = predict(mdl_lin, X_test);
-    Y_pred_quad_train = predict(mdl_quad, [X_train X_train.^2]);
-    Y_pred_quad_test  = predict(mdl_quad, [X_test X_test.^2]);
+    % Predicciones en el conjunto de entrenamiento completo
+    Y_pred_lin_train  = predict(mdl_lin, X_full);
+    Y_pred_quad_train = predict(mdl_quad, [X_full X_full.^2]);
 
-    % Métricas de desempeño (train)
-    metrics_lin_train  = compute_metrics(Y_train, Y_pred_lin_train, mdl_lin.NumEstimatedCoefficients);
-    metrics_quad_train = compute_metrics(Y_train, Y_pred_quad_train, mdl_quad.NumEstimatedCoefficients);
-    % Métricas de desempeño (test)
-    metrics_lin_test   = compute_metrics(Y_test, Y_pred_lin_test, mdl_lin.NumEstimatedCoefficients);
-    metrics_quad_test  = compute_metrics(Y_test, Y_pred_quad_test, mdl_quad.NumEstimatedCoefficients);
+    % Métricas de desempeño (train - sobre el modelo completo)
+    metrics_lin_train  = compute_metrics(Y_full, Y_pred_lin_train, mdl_lin.NumEstimatedCoefficients);
+    metrics_quad_train = compute_metrics(Y_full, Y_pred_quad_train, mdl_quad.NumEstimatedCoefficients);
+    % Métricas de desempeño (test - a partir de LOOCV)
+    metrics_lin_test   = compute_metrics(Y_full, Y_pred_lin_loocv, mdl_lin.NumEstimatedCoefficients);
+    metrics_quad_test  = compute_metrics(Y_full, Y_pred_quad_loocv, mdl_quad.NumEstimatedCoefficients);
 
-    % Predicciones sobre todo el conjunto para graficar
-    X_full  = T.LogParams;
-    Y_full  = T.HallRate;
+    % Predicciones sobre una rejilla para graficar (usando modelo completo)
     x_grid  = linspace(min(X_full)*0.95, max(X_full)*1.05, 100).';
     y_lin   = predict(mdl_lin, x_grid);
     y_quad  = predict(mdl_quad, [x_grid x_grid.^2]);
 
     %% 4. Exportación de tablas de coeficientes y métricas
     % Preparar tabla de coeficientes para modelo lineal
-    ncoef_lin  = height(coef_lin);
-    coef_table_lin = table(coef_lin.Properties.RowNames, coef_lin.Estimate, coef_lin.SE, coef_lin.tStat, coef_lin.pValue,
+    coef_table_lin = table(coef_lin.Properties.RowNames, coef_lin.Estimate, coef_lin.SE, coef_lin.tStat, coef_lin.pValue, ...
                            ci_lin(:,1), ci_lin(:,2), 'VariableNames',{'Term','Estimate','StdError','tStat','pValue','CI_Lower','CI_Upper'});
     writetable(coef_table_lin, 'coef_lineal.csv');
 
     % Tabla de coeficientes para modelo cuadrático
-    coef_table_quad = table(coef_quad.Properties.RowNames, coef_quad.Estimate, coef_quad.SE, coef_quad.tStat, coef_quad.pValue,
+    coef_table_quad = table(coef_quad.Properties.RowNames, coef_quad.Estimate, coef_quad.SE, coef_quad.tStat, coef_quad.pValue, ...
                             ci_quad(:,1), ci_quad(:,2), 'VariableNames',{'Term','Estimate','StdError','tStat','pValue','CI_Lower','CI_Upper'});
     writetable(coef_table_quad, 'coef_cuadratico.csv');
 
@@ -133,7 +143,7 @@ function analisis_regresion()
     scatter(X_full, Y_full, 50, 'filled', 'MarkerFaceColor',[0.2 0.6 0.8]);
     plot(x_grid, y_lin, 'r-', 'LineWidth',1.5);
     % Calcular bandas de confianza al 95% para el modelo lineal
-    [y_lin_pred, y_lin_ci] = predict(mdl_lin, x_grid, 'Alpha',0.05);
+    [~, y_lin_ci] = predict(mdl_lin, x_grid, 'Alpha',0.05);
     fill([x_grid; flipud(x_grid)], [y_lin_ci(:,1); flipud(y_lin_ci(:,2))], [1 0.8 0.8], 'EdgeColor','none', 'FaceAlpha',0.5);
     xlabel('log_{10}(Número de parámetros)');
     ylabel('Tasa de alucinación');
@@ -148,7 +158,7 @@ function analisis_regresion()
     scatter(X_full, Y_full, 50, 'filled', 'MarkerFaceColor',[0.2 0.6 0.8]);
     plot(x_grid, y_quad, 'm-', 'LineWidth',1.5);
     % Banda de confianza para modelo cuadrático
-    [y_quad_pred, y_quad_ci] = predict(mdl_quad, [x_grid x_grid.^2], 'Alpha',0.05);
+    [~, y_quad_ci] = predict(mdl_quad, [x_grid x_grid.^2], 'Alpha',0.05);
     fill([x_grid; flipud(x_grid)], [y_quad_ci(:,1); flipud(y_quad_ci(:,2))], [0.9 0.8 1], 'EdgeColor','none', 'FaceAlpha',0.5);
     xlabel('log_{10}(Número de parámetros)');
     ylabel('Tasa de alucinación');
@@ -162,18 +172,18 @@ function analisis_regresion()
     subplot(2,1,1);
     plot(Y_pred_lin_all, resid_lin_all, 'bo', 'MarkerFaceColor','b');
     xlabel('Valores ajustados (lineal)'); ylabel('Residuo');
-    title('Residuos vs ajustados - Modelo lineal'); grid on; refline(0,0);
+    title('Residuos vs ajustados - Modelo lineal'); grid on; yline(0, 'Color', [0.5 0.5 0.5]);
     subplot(2,1,2);
     plot(Y_pred_quad_all, resid_quad_all, 'mo', 'MarkerFaceColor','m');
     xlabel('Valores ajustados (cuadrático)'); ylabel('Residuo');
-    title('Residuos vs ajustados - Modelo cuadrático'); grid on; refline(0,0);
+    title('Residuos vs ajustados - Modelo cuadrático'); grid on; yline(0, 'Color', [0.5 0.5 0.5]);
     saveas(gcf, 'residuos_modelos.png');
 
     % 6.4 Predicción vs observación
     figure('Name','Predicción vs Observación');
     scatter(Y_full, Y_pred_lin_all, 50, 'filled', 'MarkerFaceColor','r'); hold on;
     scatter(Y_full, Y_pred_quad_all, 50, 'filled', 'MarkerFaceColor','m');
-    plot([min(Y_full) max(Y_full)], [min(Y_full) max(Y_full)], 'k--', 'LineWidth',1);
+    plot([min(Y_full) max(Y_full)], [min(Y_full) max(Y_full)], 'm--', 'LineWidth',1);
     xlabel('Tasa de alucinación observada');
     ylabel('Tasa de alucinación predicha');
     title('Predicción vs observación');

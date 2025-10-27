@@ -1,0 +1,16 @@
+Método,Error_1 (p.ej. L∞/RMSE),Error_2 (sec.),Tiempo (s),#Eval f,Notas
+Taylor sigmoide N=3,9.1663313165362,3.31175098478015,0.0006469,8004,Aprox. de la sigmoide con serie de Taylor
+Taylor tanh N=3,163.666666441596,61.041067828581,0.0004536,8004,Aprox. de tanh con serie de Taylor
+Taylor sigmoide N=4,9.1663313165362,3.31175098478015,0.0001941,10005,Aprox. de la sigmoide con serie de Taylor
+Taylor tanh N=4,163.666666441596,61.041067828581,0.0001731,10005,Aprox. de tanh con serie de Taylor
+Taylor sigmoide N=5,59.1003353501305,17.3798953296374,0.000348,12006,Aprox. de la sigmoide con serie de Taylor
+Taylor tanh N=5,4205.40000022507,1260.93091625093,0.0004553,12006,Aprox. de tanh con serie de Taylor
+Búsqueda de raíces: Bisección,5.96046447753906e-07,5.96046447753906e-07,0.0011147,46,23 iteraciones
+Búsqueda de raíces: Newton,3255536207.18769,3255536207.18769,0.0004688,0,0 iteraciones
+Interpolación polinómica (grado 3),6.44630535445706e-14,0.0498152833157203,0.0006095,16,Coeficientes mediante polyfit y LOOCV
+Integración: Trapecio,0.0013107119106196,0.0013107119106196,0.0004278,500,Malla irregular 500 pts.
+Integración: Simpson,2.66384933000907e-07,2.66384933000907e-07,0.0002026,101,Remuestreo 101 pts.
+Regresión lineal,0.00900290677097734,0.202927298567576,0.0002206,4,Ajuste lineal en log10(params)
+Regresión cuadrática,0.00753783701361553,0.441239219728754,0.0001467,4,Ajuste cuadrático en log10(params)
+EDO: Euler,0.0135811231692772,0.0135811231692772,0.0010018,80,h=0.125
+EDO: RK4,1.13563887277346e-06,1.13563887277346e-06,0.0026953,320,h=0.125

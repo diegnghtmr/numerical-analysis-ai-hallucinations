@@ -9,7 +9,7 @@
 % mediante la regla de Simpson 1/3 compuesta sobre una malla uniforme
 % obtenida mediante interpolación monótona (PCHIP).
 
-% Autores: [Tu Nombre o grupo]
+% Autores: [Diego Flores y Juan Mora]
 % Fecha: 20‑oct‑2025
 
 function integracion_numerica()
@@ -111,7 +111,7 @@ function integracion_numerica()
 
     % 6.3 Convergencia del AUC de Simpson en función de M
     figure('Name','Convergencia Simpson');
-    plot(M_values, auc_simpson, 'k-o', 'LineWidth',1.5); hold on;
+    plot(M_values, auc_simpson, '-o', 'Color', [0.5 0.5 0.5], 'LineWidth', 1.5); hold on;
     yline(auc_trap, 'r--', 'LineWidth',1.2, 'Label','AUC_{trap}');
     xlabel('Número de nodos M'); ylabel('AUC (Simpson)');
     title('Convergencia del AUC con la regla de Simpson');

@@ -11,6 +11,9 @@
 % validación cruzada.  Los resultados se exportan a archivos CSV y
 % figuras para ser incluidos en el informe.
 
+% autor: [Diego Flores y Juan Mora]
+% fecha: 20‑oct‑2025
+
 function interpolacion_polinomica()
     % -----------------------------
     % 1. Definición de datos
