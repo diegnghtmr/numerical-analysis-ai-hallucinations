@@ -109,22 +109,27 @@ function interpolacion_polinomica()
     % 5. Gráficas
     % -----------------------------
     % Figura 1: Ajuste de datos y polinomios
-    figure;
-    plot(10.^xgrid/1e9, y_lagrange_grid, 'b-', 'LineWidth',1.5, 'DisplayName','Lagrange'); hold on;
-    plot(10.^xgrid/1e9, y_newton_grid, 'r--', 'LineWidth',1.5, 'DisplayName','Newton');
-    plot(10.^xgrid/1e9, y_pchip_grid, 'g-.', 'LineWidth',1.5, 'DisplayName','PCHIP');
+    figure('Position', [100, 100, 1000, 600]);
+    plot(10.^xgrid/1e9, y_lagrange_grid, '-', 'LineWidth', 2.5, 'Color', [0.00 0.45 0.74], 'DisplayName', 'Lagrange'); hold on;
+    plot(10.^xgrid/1e9, y_newton_grid, '--', 'LineWidth', 2.5, 'Color', [0.85 0.33 0.10], 'DisplayName', 'Newton');
+    plot(10.^xgrid/1e9, y_pchip_grid, '-.', 'LineWidth', 2.5, 'Color', [0.47 0.67 0.19], 'DisplayName', 'PCHIP');
     % Puntos de datos
-    scatter(params/1e9, Y, 60, 'k', 'filled', 'DisplayName','Datos');
+    scatter(params/1e9, Y, 100, 'k', 'filled', 'DisplayName', 'Datos observados', 'MarkerEdgeColor', 'w', 'LineWidth', 1.5);
     % Estimación en 40B
-    scatter(params_query/1e9, y_lagrange_q, 70, 'b', 'o', 'filled', 'DisplayName','Estimación Lagrange 40B');
-    scatter(params_query/1e9, y_newton_q, 70, 'r', 'o', 'filled', 'DisplayName','Estimación Newton 40B');
-    scatter(params_query/1e9, y_pchip_q, 70, 'g', 'o', 'filled', 'DisplayName','Estimación PCHIP 40B');
-    xlabel('Número de parámetros (en miles de millones)');
-    ylabel('Tasa de alucinación');
-    title('Interpolación polinómica de tasas de alucinación');
-    legend('Location','best');
+    scatter(params_query/1e9, y_lagrange_q, 120, [0.00 0.45 0.74], 'd', 'filled', ...
+            'DisplayName', 'Estimación 40B (Lagrange)', 'MarkerEdgeColor', 'k', 'LineWidth', 1.5);
+    scatter(params_query/1e9, y_newton_q, 120, [0.85 0.33 0.10], 's', 'filled', ...
+            'DisplayName', 'Estimación 40B (Newton)', 'MarkerEdgeColor', 'k', 'LineWidth', 1.5);
+    scatter(params_query/1e9, y_pchip_q, 120, [0.47 0.67 0.19], '^', 'filled', ...
+            'DisplayName', 'Estimación 40B (PCHIP)', 'MarkerEdgeColor', 'k', 'LineWidth', 1.5);
+    xlabel('Tamaño del modelo (miles de millones de parámetros)', 'FontSize', 13);
+    ylabel('Tasa de alucinación', 'FontSize', 13);
+    title('Interpolación polinómica de tasas de alucinación', 'FontSize', 16, 'FontWeight', 'bold');
+    legend('Location', 'best', 'FontSize', 10);
     grid on;
-    saveas(gcf, 'fig_interpolacion_tasas.png');
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    print('fig_interpolacion_tasas.png', '-dpng', '-r300');
     close;
 
     % Figura 2: Residuales en nodos
@@ -202,15 +207,23 @@ function interpolacion_polinomica()
     close;
 
     % Figura 3: Errores LOOCV
-    figure;
-    bar(tbl_loocv.index_removed, [tbl_loocv.error_lagr, tbl_loocv.error_newton, tbl_loocv.error_pchip]);
-    set(gca,'XTick',1:n,'XTickLabel',{'7B','13B','30B','70B'});
-    xlabel('Nodo eliminado');
-    ylabel('Error absoluto');
-    legend({'Lagrange','Newton','PCHIP'}, 'Location','best');
-    title('Errores de validación cruzada leave-one-out');
+    figure('Position', [100, 100, 1000, 600]);
+    colors_bar = [0.00 0.45 0.74; 0.85 0.33 0.10; 0.47 0.67 0.19];
+    b = bar(tbl_loocv.index_removed, [tbl_loocv.error_lagr, tbl_loocv.error_newton, tbl_loocv.error_pchip]);
+    for k = 1:3
+        b(k).FaceColor = colors_bar(k,:);
+        b(k).EdgeColor = 'k';
+        b(k).LineWidth = 0.8;
+    end
+    set(gca, 'XTick', 1:n, 'XTickLabel', {'7B','13B','30B','70B'}, 'FontSize', 12);
+    xlabel('Nodo eliminado', 'FontSize', 13);
+    ylabel('Error absoluto', 'FontSize', 13);
+    legend({'Lagrange','Newton','PCHIP'}, 'Location', 'best', 'FontSize', 11);
+    title('Errores de validación cruzada (Leave-One-Out)', 'FontSize', 16, 'FontWeight', 'bold');
     grid on;
-    saveas(gcf, 'fig_loocv_errors.png');
+    set(gca, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    print('fig_loocv_errors.png', '-dpng', '-r300');
     close;
 
     % Mostrar estimaciones

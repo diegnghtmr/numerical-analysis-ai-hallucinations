@@ -98,39 +98,54 @@ function root_finding_methods()
     % 8. Gráficas
     % ----------------------------
     % f(t) y raíces
-    figure;
-    plot(t_fine, f(t_fine), 'b-', 'LineWidth',1.2);
+    figure('Position', [100, 100, 1000, 600]);
+    plot(t_fine, f(t_fine), 'LineWidth', 2.5, 'Color', [0.00 0.45 0.74], 'DisplayName', 'f(t) = P(t) - R(t)');
     hold on;
-    yline(0,'k--');
-    plot(root_bis, 0, 'ro', 'DisplayName','Biseccion');
-    plot(root_new, 0, 'gx', 'DisplayName','Newton');
-    title('Función f(t)=P(t)-R(t) y raíces estimadas');
-    xlabel('Umbral t'); ylabel('f(t)');
-    legend('f(t)','y=0','Bisección','Newton','Location','best'); grid on; hold off;
-    saveas(gcf, 'fig_f_t_crossing.png'); close;
+    yline(0, '--', 'LineWidth', 1.5, 'Color', [0.5 0.5 0.5], 'DisplayName', 'y = 0');
+    plot(root_bis, 0, 'o', 'MarkerSize', 12, 'MarkerFaceColor', [0.85 0.33 0.10], ...
+         'MarkerEdgeColor', 'k', 'LineWidth', 1.5, 'DisplayName', 'Bisección');
+    plot(root_new, 0, 'pentagram', 'MarkerSize', 14, 'MarkerFaceColor', [0.47 0.67 0.19], ...
+         'MarkerEdgeColor', 'k', 'LineWidth', 1.5, 'DisplayName', 'Newton-Raphson');
+    title('Función f(t) = Precisión(t) - Recall(t) y raíces estimadas', 'FontSize', 16, 'FontWeight', 'bold');
+    xlabel('Umbral t', 'FontSize', 13); ylabel('f(t)', 'FontSize', 13);
+    legend('Location', 'best', 'FontSize', 11);
+    grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    hold off;
+    print('fig_f_t_crossing.png', '-dpng', '-r300'); close;
 
     % Curvas P, R, F1
-    figure;
-    plot(t_vals, P_vals, 'b-', 'LineWidth',1.2); hold on;
-    plot(t_vals, R_vals, 'r-', 'LineWidth',1.2);
-    plot(t_vals, F1_vals, 'g-', 'LineWidth',1.2);
-    xline(root_bis, 'k--', 'DisplayName','t* (P=R)');
-    xline(t_maxF1, 'm--', 'DisplayName','t (max F1)');
-    title('Curvas de Precision, Recall y F1 vs Umbral');
-    xlabel('Umbral t'); ylabel('Valor de la métrica');
-    legend({'Precision','Recall','F1','t* (P=R)','t (max F1)'}, 'Location','best');
-    grid on; hold off;
-    saveas(gcf, 'fig_curvas_PRF1.png'); close;
+    figure('Position', [100, 100, 1000, 600]);
+    plot(t_vals, P_vals, '-', 'LineWidth', 2.5, 'Color', [0.00 0.45 0.74], 'DisplayName', 'Precisión'); hold on;
+    plot(t_vals, R_vals, '-', 'LineWidth', 2.5, 'Color', [0.85 0.33 0.10], 'DisplayName', 'Recall');
+    plot(t_vals, F1_vals, '-', 'LineWidth', 2.5, 'Color', [0.47 0.67 0.19], 'DisplayName', 'F1-Score');
+    xline(root_bis, '--', 'LineWidth', 2, 'Color', [0.5 0.5 0.5], 'DisplayName', 't* (P=R)');
+    xline(t_maxF1, '-.', 'LineWidth', 2, 'Color', [0.49 0.18 0.56], 'DisplayName', 't (max F1)');
+    title('Métricas de clasificación vs. Umbral', 'FontSize', 16, 'FontWeight', 'bold');
+    xlabel('Umbral t', 'FontSize', 13); ylabel('Valor de la métrica', 'FontSize', 13);
+    legend('Location', 'best', 'FontSize', 11);
+    grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    hold off;
+    print('fig_curvas_PRF1.png', '-dpng', '-r300'); close;
 
     % Convergencia Bisección
-    figure;
-    semilogy(hist_bis(:,1), hist_bis(:,6), '-o', 'LineWidth',1.2, 'DisplayName','Bisección');
+    figure('Position', [100, 100, 1000, 600]);
+    semilogy(hist_bis(:,1), hist_bis(:,6), '-o', 'LineWidth', 2.5, 'MarkerSize', 8, ...
+             'MarkerFaceColor', [0.85 0.33 0.10], 'Color', [0.85 0.33 0.10], 'DisplayName', 'Bisección');
     hold on;
-    semilogy(hist_new(:,1), hist_new(:,4), '-s', 'LineWidth',1.2, 'DisplayName','Newton');
-    title('Convergencia de métodos de búsqueda de raíces');
-    xlabel('Iteración k'); ylabel('Error aproximado');
-    legend('Bisección |b-a|/2','Newton |x_k - x_{k-1}|'); grid on; hold off;
-    saveas(gcf, 'fig_convergencia_metodos.png'); close;
+    semilogy(hist_new(:,1), hist_new(:,4), '-s', 'LineWidth', 2.5, 'MarkerSize', 8, ...
+             'MarkerFaceColor', [0.47 0.67 0.19], 'Color', [0.47 0.67 0.19], 'DisplayName', 'Newton-Raphson');
+    title('Convergencia de métodos de búsqueda de raíces', 'FontSize', 16, 'FontWeight', 'bold');
+    xlabel('Iteración k', 'FontSize', 13); ylabel('Error aproximado (escala log)', 'FontSize', 13);
+    legend('Location', 'northeast', 'FontSize', 11);
+    grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    hold off;
+    print('fig_convergencia_metodos.png', '-dpng', '-r300'); close;
 
     fprintf('Umbral raíz (Bisección): %.6f\n', root_bis);
     fprintf('Umbral raíz (Newton): %.6f\n', root_new);

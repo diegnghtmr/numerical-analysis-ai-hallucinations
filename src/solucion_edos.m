@@ -147,10 +147,10 @@ writecell([detalle_header; num2cell(tabla_detalle)], 'tabla_detalle_EDO.csv');
 %% Dibujar gráficas
 % 1. Solución C(t) para el paso más grande y más pequeño
 h_show = [h_values(1), h_values(end)];
-fig1 = figure('Name','C(t) y Contexto para distintos h','NumberTitle','off');
+fig1 = figure('Name', 'C(t) y Contexto para distintos h', 'NumberTitle', 'off', 'Position', [100, 100, 1100, 600]);
 hold on;
-plot(t_ref, C_ref, 'm', 'LineWidth', 1.5, 'DisplayName','Referencia (RK4 h_{ref})');
-colores = lines(numel(h_show));
+plot(t_ref, C_ref, '-', 'LineWidth', 2.5, 'Color', [0.49 0.18 0.56], 'DisplayName', 'Referencia (RK4 fino)');
+colores = [0.00 0.45 0.74; 0.85 0.33 0.10];
 for j = 1:numel(h_show)
     h = h_show(j);
     % cargar curva desde CSV usando readtable para manejar encabezados
@@ -159,44 +159,57 @@ for j = 1:numel(h_show)
     t_tmp  = data_table.t;
     C_e    = data_table.Euler;
     C_r    = data_table.RK4;
-    plot(t_tmp, C_e, '--', 'Color', colores(j,:), 'LineWidth', 1.2, 'DisplayName', sprintf('Euler h=%.3f', h));
-    plot(t_tmp, C_r, '-',  'Color', colores(j,:), 'LineWidth', 1.5, 'DisplayName', sprintf('RK4 h=%.3f', h));
+    plot(t_tmp, C_e, 'o--', 'Color', colores(j,:), 'LineWidth', 1.8, 'MarkerSize', 5, ...
+         'DisplayName', sprintf('Euler (h=%.3f)', h));
+    plot(t_tmp, C_r, 's-',  'Color', colores(j,:), 'LineWidth', 2.2, 'MarkerSize', 4, ...
+         'DisplayName', sprintf('RK4 (h=%.3f)', h));
 end
 % Graficar contexto en escala secundaria
 yyaxis right;
-plot(t_ref, context_function(t_ref), ':', 'Color',[0.5 0.5 0.5], 'LineWidth',1.2, 'DisplayName','Contexto');
-ylabel('Contexto');
+plot(t_ref, context_function(t_ref), ':', 'Color', [0.5 0.5 0.5], 'LineWidth', 2, 'DisplayName', 'Contexto');
+ylabel('Señal de contexto', 'FontSize', 13);
+set(gca, 'YColor', [0.5 0.5 0.5]);
 yyaxis left;
-ylabel('Confianza C(t)');
-xlabel('t');
-title('Evolución de la confianza C(t) y contexto para distintos tamaños de paso');
-legend('Location','northeastoutside');
+ylabel('Confianza C(t)', 'FontSize', 13);
+xlabel('Tiempo t', 'FontSize', 13);
+title('Evolución de la confianza C(t) con distintos métodos y tamaños de paso', 'FontSize', 16, 'FontWeight', 'bold');
+legend('Location', 'northeastoutside', 'FontSize', 10);
 grid on;
-saveas(fig1, 'fig_EDO_soluciones.png');
+set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+box on;
+print('fig_EDO_soluciones.png', '-dpng', '-r300');
 
 % 2. Error máximo vs h en escala log-log
-fig2 = figure('Name','Error máximo vs h','NumberTitle','off');
-loglog(tabla_errores(:,1), tabla_errores(:,3), 'o-', 'LineWidth', 1.5, 'DisplayName','Euler (error máximo)');
+fig2 = figure('Name', 'Error máximo vs h', 'NumberTitle', 'off', 'Position', [100, 100, 1000, 600]);
+loglog(tabla_errores(:,1), tabla_errores(:,3), 'o-', 'LineWidth', 2.5, 'MarkerSize', 8, ...
+       'MarkerFaceColor', [0.00 0.45 0.74], 'Color', [0.00 0.45 0.74], 'DisplayName', 'Euler');
 hold on;
-loglog(tabla_errores(:,1), tabla_errores(:,5), 's-', 'LineWidth', 1.5, 'DisplayName','RK4 (error máximo)');
+loglog(tabla_errores(:,1), tabla_errores(:,5), 's-', 'LineWidth', 2.5, 'MarkerSize', 8, ...
+       'MarkerFaceColor', [0.85 0.33 0.10], 'Color', [0.85 0.33 0.10], 'DisplayName', 'RK4');
 grid on;
-xlabel('h (tamaño de paso)');
-ylabel('Error máximo');
-title('Convergencia del error máximo de Euler y RK4');
-legend('Location','northwest');
-saveas(fig2, 'fig_EDO_error_maximo.png');
+xlabel('Tamaño de paso (h)', 'FontSize', 13);
+ylabel('Error máximo (escala log)', 'FontSize', 13);
+title('Convergencia del error máximo: Euler vs RK4', 'FontSize', 16, 'FontWeight', 'bold');
+legend('Location', 'northwest', 'FontSize', 11);
+set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+box on;
+print('fig_EDO_error_maximo.png', '-dpng', '-r300');
 
 % 3. Error al final vs h en escala log-log
-fig3 = figure('Name','Error al final vs h','NumberTitle','off');
-loglog(tabla_errores(:,1), tabla_errores(:,4), 'o-', 'LineWidth', 1.5, 'DisplayName','Euler (error final)');
+fig3 = figure('Name', 'Error al final vs h', 'NumberTitle', 'off', 'Position', [100, 100, 1000, 600]);
+loglog(tabla_errores(:,1), tabla_errores(:,4), 'o-', 'LineWidth', 2.5, 'MarkerSize', 8, ...
+       'MarkerFaceColor', [0.00 0.45 0.74], 'Color', [0.00 0.45 0.74], 'DisplayName', 'Euler');
 hold on;
-loglog(tabla_errores(:,1), tabla_errores(:,6), 's-', 'LineWidth', 1.5, 'DisplayName','RK4 (error final)');
+loglog(tabla_errores(:,1), tabla_errores(:,6), 's-', 'LineWidth', 2.5, 'MarkerSize', 8, ...
+       'MarkerFaceColor', [0.85 0.33 0.10], 'Color', [0.85 0.33 0.10], 'DisplayName', 'RK4');
 grid on;
-xlabel('h (tamaño de paso)');
-ylabel('Error |C_{approx}(T_{max}) - C_{ref}(T_{max})|');
-title('Convergencia del error al final del intervalo');
-legend('Location','northwest');
-saveas(fig3, 'fig_EDO_error_final.png');
+xlabel('Tamaño de paso (h)', 'FontSize', 13);
+ylabel('Error al final del intervalo (escala log)', 'FontSize', 13);
+title('Convergencia del error al final: Euler vs RK4', 'FontSize', 16, 'FontWeight', 'bold');
+legend('Location', 'northwest', 'FontSize', 11);
+set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+box on;
+print('fig_EDO_error_final.png', '-dpng', '-r300');
 
 %% Mostrar resultados en consola
 disp('Tabla de errores (h, N, error max Euler, error final Euler, error max RK4, error final RK4):');

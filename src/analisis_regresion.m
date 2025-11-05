@@ -138,58 +138,85 @@ function analisis_regresion()
 
     %% 6. Gráficas
     % 6.1 Ajuste lineal con banda de confianza
-    figure('Name','Regresión lineal');
+    figure('Name', 'Regresión lineal', 'Position', [100, 100, 1000, 600]);
     hold on;
-    scatter(X_full, Y_full, 50, 'filled', 'MarkerFaceColor',[0.2 0.6 0.8]);
-    plot(x_grid, y_lin, 'r-', 'LineWidth',1.5);
     % Calcular bandas de confianza al 95% para el modelo lineal
-    [~, y_lin_ci] = predict(mdl_lin, x_grid, 'Alpha',0.05);
-    fill([x_grid; flipud(x_grid)], [y_lin_ci(:,1); flipud(y_lin_ci(:,2))], [1 0.8 0.8], 'EdgeColor','none', 'FaceAlpha',0.5);
-    xlabel('log_{10}(Número de parámetros)');
-    ylabel('Tasa de alucinación');
-    title('Modelo de regresión lineal con banda de confianza');
-    legend('Datos','Ajuste lineal','Banda 95%','Location','NorthEast');
+    [~, y_lin_ci] = predict(mdl_lin, x_grid, 'Alpha', 0.05);
+    fill([x_grid; flipud(x_grid)], [y_lin_ci(:,1); flipud(y_lin_ci(:,2))], [0.85 0.33 0.10], ...
+         'EdgeColor', 'none', 'FaceAlpha', 0.2, 'DisplayName', 'Intervalo de confianza 95%');
+    plot(x_grid, y_lin, '-', 'LineWidth', 2.5, 'Color', [0.85 0.33 0.10], 'DisplayName', 'Ajuste lineal');
+    scatter(X_full, Y_full, 100, 'MarkerFaceColor', [0.00 0.45 0.74], 'MarkerEdgeColor', 'k', ...
+            'LineWidth', 1.5, 'DisplayName', 'Datos observados');
+    xlabel('log_{10}(Número de parámetros)', 'FontSize', 13);
+    ylabel('Tasa de alucinación', 'FontSize', 13);
+    title('Modelo de regresión lineal', 'FontSize', 16, 'FontWeight', 'bold');
+    legend('Location', 'best', 'FontSize', 11);
     grid on;
-    saveas(gcf, 'ajuste_lineal.png');
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    print('ajuste_lineal.png', '-dpng', '-r300');
 
     % 6.2 Ajuste cuadrático con banda de confianza
-    figure('Name','Regresión cuadrática');
+    figure('Name', 'Regresión cuadrática', 'Position', [100, 100, 1000, 600]);
     hold on;
-    scatter(X_full, Y_full, 50, 'filled', 'MarkerFaceColor',[0.2 0.6 0.8]);
-    plot(x_grid, y_quad, 'm-', 'LineWidth',1.5);
     % Banda de confianza para modelo cuadrático
-    [~, y_quad_ci] = predict(mdl_quad, [x_grid x_grid.^2], 'Alpha',0.05);
-    fill([x_grid; flipud(x_grid)], [y_quad_ci(:,1); flipud(y_quad_ci(:,2))], [0.9 0.8 1], 'EdgeColor','none', 'FaceAlpha',0.5);
-    xlabel('log_{10}(Número de parámetros)');
-    ylabel('Tasa de alucinación');
-    title('Modelo de regresión cuadrática con banda de confianza');
-    legend('Datos','Ajuste cuadrático','Banda 95%','Location','NorthEast');
+    [~, y_quad_ci] = predict(mdl_quad, [x_grid x_grid.^2], 'Alpha', 0.05);
+    fill([x_grid; flipud(x_grid)], [y_quad_ci(:,1); flipud(y_quad_ci(:,2))], [0.47 0.67 0.19], ...
+         'EdgeColor', 'none', 'FaceAlpha', 0.2, 'DisplayName', 'Intervalo de confianza 95%');
+    plot(x_grid, y_quad, '-', 'LineWidth', 2.5, 'Color', [0.47 0.67 0.19], 'DisplayName', 'Ajuste cuadrático');
+    scatter(X_full, Y_full, 100, 'MarkerFaceColor', [0.00 0.45 0.74], 'MarkerEdgeColor', 'k', ...
+            'LineWidth', 1.5, 'DisplayName', 'Datos observados');
+    xlabel('log_{10}(Número de parámetros)', 'FontSize', 13);
+    ylabel('Tasa de alucinación', 'FontSize', 13);
+    title('Modelo de regresión cuadrática', 'FontSize', 16, 'FontWeight', 'bold');
+    legend('Location', 'best', 'FontSize', 11);
     grid on;
-    saveas(gcf, 'ajuste_cuadratico.png');
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    print('ajuste_cuadratico.png', '-dpng', '-r300');
 
     % 6.3 Residuos vs ajustados (lineal y cuadrático)
-    figure('Name','Residuos');
+    figure('Name', 'Residuos', 'Position', [100, 100, 1000, 800]);
     subplot(2,1,1);
-    plot(Y_pred_lin_all, resid_lin_all, 'bo', 'MarkerFaceColor','b');
-    xlabel('Valores ajustados (lineal)'); ylabel('Residuo');
-    title('Residuos vs ajustados - Modelo lineal'); grid on; yline(0, 'Color', [0.5 0.5 0.5]);
+    scatter(Y_pred_lin_all, resid_lin_all, 100, 'MarkerFaceColor', [0.85 0.33 0.10], ...
+            'MarkerEdgeColor', 'k', 'LineWidth', 1.5);
+    xlabel('Valores ajustados', 'FontSize', 12);
+    ylabel('Residuo', 'FontSize', 12);
+    title('Residuos vs ajustados: Modelo lineal', 'FontSize', 14, 'FontWeight', 'bold');
+    grid on;
+    yline(0, '--', 'Color', [0.5 0.5 0.5], 'LineWidth', 2);
+    set(gca, 'FontSize', 11, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
     subplot(2,1,2);
-    plot(Y_pred_quad_all, resid_quad_all, 'mo', 'MarkerFaceColor','m');
-    xlabel('Valores ajustados (cuadrático)'); ylabel('Residuo');
-    title('Residuos vs ajustados - Modelo cuadrático'); grid on; yline(0, 'Color', [0.5 0.5 0.5]);
-    saveas(gcf, 'residuos_modelos.png');
+    scatter(Y_pred_quad_all, resid_quad_all, 100, 'MarkerFaceColor', [0.47 0.67 0.19], ...
+            'MarkerEdgeColor', 'k', 'LineWidth', 1.5);
+    xlabel('Valores ajustados', 'FontSize', 12);
+    ylabel('Residuo', 'FontSize', 12);
+    title('Residuos vs ajustados: Modelo cuadrático', 'FontSize', 14, 'FontWeight', 'bold');
+    grid on;
+    yline(0, '--', 'Color', [0.5 0.5 0.5], 'LineWidth', 2);
+    set(gca, 'FontSize', 11, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    print('residuos_modelos.png', '-dpng', '-r300');
 
     % 6.4 Predicción vs observación
-    figure('Name','Predicción vs Observación');
-    scatter(Y_full, Y_pred_lin_all, 50, 'filled', 'MarkerFaceColor','r'); hold on;
-    scatter(Y_full, Y_pred_quad_all, 50, 'filled', 'MarkerFaceColor','m');
-    plot([min(Y_full) max(Y_full)], [min(Y_full) max(Y_full)], 'm--', 'LineWidth',1);
-    xlabel('Tasa de alucinación observada');
-    ylabel('Tasa de alucinación predicha');
-    title('Predicción vs observación');
-    legend('Predicción lineal','Predicción cuadrática','Línea 45°','Location','NorthWest');
+    figure('Name', 'Predicción vs Observación', 'Position', [100, 100, 1000, 600]);
+    hold on;
+    plot([min(Y_full) max(Y_full)], [min(Y_full) max(Y_full)], '--', 'LineWidth', 2, ...
+         'Color', [0.5 0.5 0.5], 'DisplayName', 'Línea perfecta (45°)');
+    scatter(Y_full, Y_pred_lin_all, 100, 'MarkerFaceColor', [0.85 0.33 0.10], ...
+            'MarkerEdgeColor', 'k', 'LineWidth', 1.5, 'DisplayName', 'Modelo lineal');
+    scatter(Y_full, Y_pred_quad_all, 100, 'MarkerFaceColor', [0.47 0.67 0.19], ...
+            'MarkerEdgeColor', 'k', 'LineWidth', 1.5, 'DisplayName', 'Modelo cuadrático');
+    xlabel('Tasa de alucinación observada', 'FontSize', 13);
+    ylabel('Tasa de alucinación predicha', 'FontSize', 13);
+    title('Predicción vs Observación', 'FontSize', 16, 'FontWeight', 'bold');
+    legend('Location', 'best', 'FontSize', 11);
     grid on;
-    saveas(gcf, 'pred_vs_obs.png');
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    axis equal;
+    print('pred_vs_obs.png', '-dpng', '-r300');
 
 end
 

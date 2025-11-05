@@ -68,101 +68,128 @@ function taylor_approximation()
     writetable(array2table(metrics_tanh, 'VariableNames', metrics_hdr), 'taylor_tanh_metricas.csv');
 
     % Generar gráficas para sigmoid
-    figure;
+    % Paleta de colores profesional (gradiente de azul a naranja)
+    colors = [0.12 0.47 0.71; 0.20 0.63 0.79; 0.99 0.55 0.38; 0.89 0.10 0.11; 0.55 0.00 0.52];
+
+    figure('Position', [100, 100, 1000, 600]);
     hold on;
-    plot(x, y_ref_sig, 'k', 'LineWidth', 1.5);
+    plot(x, y_ref_sig, 'k', 'LineWidth', 2.5, 'DisplayName', 'Referencia (exacta)');
     for idx = 1:length(orders)
         N = orders(idx);
         y_taylor_sig = tabla_sig(tabla_sig(:,6)==N, 3);
-        plot(x, y_taylor_sig, 'LineWidth', 1.0, 'DisplayName', ['N=', num2str(N)]);
+        plot(x, y_taylor_sig, 'LineWidth', 2.0, 'Color', colors(idx,:), ...
+             'DisplayName', ['Orden N=', num2str(N)], 'LineStyle', '--');
     end
-    title('Aproximación de sigmoid mediante series de Taylor');
-    xlabel('x');
-    ylabel('sigmoid(x)');
-    legend(['Referencia', arrayfun(@(n) ['N=', num2str(n)], orders, 'UniformOutput', false)]);
+    title('Aproximación de sigmoid mediante series de Taylor', 'FontSize', 16, 'FontWeight', 'bold');
+    xlabel('x (logits)', 'FontSize', 13);
+    ylabel('sigmoid(x)', 'FontSize', 13);
+    legend('Location', 'northwest', 'FontSize', 11);
     grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
     hold off;
-    saveas(gcf, 'fig_taylor_sigmoid_aprox.png');
+    print('fig_taylor_sigmoid_aprox.png', '-dpng', '-r300');
     close;
 
     % Error absoluto vs x para sigmoid (escala logarítmica en y)
-    figure;
+    figure('Position', [100, 100, 1000, 600]);
     hold on;
     for idx = 1:length(orders)
         N = orders(idx);
         err_sig = tabla_sig(tabla_sig(:,6)==N, 4);
-        semilogy(x, err_sig, 'LineWidth', 1.0, 'DisplayName', ['N=', num2str(N)]);
+        semilogy(x, err_sig, 'LineWidth', 2.0, 'Color', colors(idx,:), ...
+                 'DisplayName', ['Orden N=', num2str(N)]);
     end
-    title('Error absoluto de la aproximación de sigmoid');
-    xlabel('x');
-    ylabel('|error|');
-    legend;
+    title('Error absoluto de la aproximación de sigmoid', 'FontSize', 16, 'FontWeight', 'bold');
+    xlabel('x (logits)', 'FontSize', 13);
+    ylabel('Error absoluto |error|', 'FontSize', 13);
+    legend('Location', 'best', 'FontSize', 11);
     grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
     hold off;
-    saveas(gcf, 'fig_taylor_sigmoid_error.png');
+    print('fig_taylor_sigmoid_error.png', '-dpng', '-r300');
     close;
 
     % Métricas de error vs N para sigmoid
-    figure;
-    semilogy(metrics_sig(:,1), metrics_sig(:,2), '-o', 'LineWidth', 1.5, 'DisplayName','Max |error|');
+    figure('Position', [100, 100, 1000, 600]);
+    semilogy(metrics_sig(:,1), metrics_sig(:,2), '-o', 'LineWidth', 2.5, ...
+             'MarkerSize', 8, 'MarkerFaceColor', [0.85 0.33 0.10], ...
+             'Color', [0.85 0.33 0.10], 'DisplayName','Error máximo');
     hold on;
-    semilogy(metrics_sig(:,1), metrics_sig(:,3), '-s', 'LineWidth', 1.5, 'DisplayName','RMSE');
-    title('Error máximo y RMSE de la aproximación de sigmoid');
-    xlabel('Orden N');
-    ylabel('Error');
-    legend;
+    semilogy(metrics_sig(:,1), metrics_sig(:,3), '-s', 'LineWidth', 2.5, ...
+             'MarkerSize', 8, 'MarkerFaceColor', [0.00 0.45 0.74], ...
+             'Color', [0.00 0.45 0.74], 'DisplayName','RMSE');
+    title('Convergencia del error: sigmoid', 'FontSize', 16, 'FontWeight', 'bold');
+    xlabel('Orden de la serie de Taylor (N)', 'FontSize', 13);
+    ylabel('Error (escala logarítmica)', 'FontSize', 13);
+    legend('Location', 'northeast', 'FontSize', 11);
     grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
     hold off;
-    saveas(gcf, 'fig_taylor_sigmoid_metricas.png');
+    print('fig_taylor_sigmoid_metricas.png', '-dpng', '-r300');
     close;
 
     % Generar gráficas para tanh
-    figure;
+    figure('Position', [100, 100, 1000, 600]);
     hold on;
-    plot(x, y_ref_tanh, 'k', 'LineWidth', 1.5);
+    plot(x, y_ref_tanh, 'k', 'LineWidth', 2.5, 'DisplayName', 'Referencia (exacta)');
     for idx = 1:length(orders)
         N = orders(idx);
         y_taylor_tanh = tabla_tanh(tabla_tanh(:,6)==N, 3);
-        plot(x, y_taylor_tanh, 'LineWidth', 1.0, 'DisplayName', ['N=', num2str(N)]);
+        plot(x, y_taylor_tanh, 'LineWidth', 2.0, 'Color', colors(idx,:), ...
+             'DisplayName', ['Orden N=', num2str(N)], 'LineStyle', '--');
     end
-    title('Aproximación de tanh mediante series de Taylor');
-    xlabel('x');
-    ylabel('tanh(x)');
-    legend(['Referencia', arrayfun(@(n) ['N=', num2str(n)], orders, 'UniformOutput', false)]);
+    title('Aproximación de tanh mediante series de Taylor', 'FontSize', 16, 'FontWeight', 'bold');
+    xlabel('x (logits)', 'FontSize', 13);
+    ylabel('tanh(x)', 'FontSize', 13);
+    legend('Location', 'northwest', 'FontSize', 11);
     grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
     hold off;
-    saveas(gcf, 'fig_taylor_tanh_aprox.png');
+    print('fig_taylor_tanh_aprox.png', '-dpng', '-r300');
     close;
 
     % Error absoluto vs x para tanh
-    figure;
+    figure('Position', [100, 100, 1000, 600]);
     hold on;
     for idx = 1:length(orders)
         N = orders(idx);
         err_tanh = tabla_tanh(tabla_tanh(:,6)==N, 4);
-        semilogy(x, err_tanh, 'LineWidth', 1.0, 'DisplayName', ['N=', num2str(N)]);
+        semilogy(x, err_tanh, 'LineWidth', 2.0, 'Color', colors(idx,:), ...
+                 'DisplayName', ['Orden N=', num2str(N)]);
     end
-    title('Error absoluto de la aproximación de tanh');
-    xlabel('x');
-    ylabel('|error|');
-    legend;
+    title('Error absoluto de la aproximación de tanh', 'FontSize', 16, 'FontWeight', 'bold');
+    xlabel('x (logits)', 'FontSize', 13);
+    ylabel('Error absoluto |error|', 'FontSize', 13);
+    legend('Location', 'best', 'FontSize', 11);
     grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
     hold off;
-    saveas(gcf, 'fig_taylor_tanh_error.png');
+    print('fig_taylor_tanh_error.png', '-dpng', '-r300');
     close;
 
     % Métricas de error vs N para tanh
-    figure;
-    semilogy(metrics_tanh(:,1), metrics_tanh(:,2), '-o', 'LineWidth', 1.5, 'DisplayName','Max |error|');
+    figure('Position', [100, 100, 1000, 600]);
+    semilogy(metrics_tanh(:,1), metrics_tanh(:,2), '-o', 'LineWidth', 2.5, ...
+             'MarkerSize', 8, 'MarkerFaceColor', [0.85 0.33 0.10], ...
+             'Color', [0.85 0.33 0.10], 'DisplayName','Error máximo');
     hold on;
-    semilogy(metrics_tanh(:,1), metrics_tanh(:,3), '-s', 'LineWidth', 1.5, 'DisplayName','RMSE');
-    title('Error máximo y RMSE de la aproximación de tanh');
-    xlabel('Orden N');
-    ylabel('Error');
-    legend;
+    semilogy(metrics_tanh(:,1), metrics_tanh(:,3), '-s', 'LineWidth', 2.5, ...
+             'MarkerSize', 8, 'MarkerFaceColor', [0.00 0.45 0.74], ...
+             'Color', [0.00 0.45 0.74], 'DisplayName','RMSE');
+    title('Convergencia del error: tanh', 'FontSize', 16, 'FontWeight', 'bold');
+    xlabel('Orden de la serie de Taylor (N)', 'FontSize', 13);
+    ylabel('Error (escala logarítmica)', 'FontSize', 13);
+    legend('Location', 'northeast', 'FontSize', 11);
     grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
     hold off;
-    saveas(gcf, 'fig_taylor_tanh_metricas.png');
+    print('fig_taylor_tanh_metricas.png', '-dpng', '-r300');
     close;
 
     % Informar en la consola que la ejecución ha finalizado

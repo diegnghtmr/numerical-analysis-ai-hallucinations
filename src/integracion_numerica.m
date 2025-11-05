@@ -92,31 +92,44 @@ function integracion_numerica()
 
     %% 6. Gráficas
     % 6.1 Curva ROC con sombreado y área
-    figure('Name','Curva ROC y AUC');
-    plot(fpr, tpr, 'b-o', 'LineWidth',1.5); hold on;
-    area(fpr, tpr, 'FaceColor',[0.8 0.8 1], 'FaceAlpha',0.4, 'EdgeColor','none');
-    xlabel('FPR'); ylabel('TPR');
-    title(sprintf('Curva ROC. AUC_{trap} = %.4f', auc_trap));
-    grid on; axis square;
-    legend('Datos ROC','Área bajo la curva','Location','SouthEast');
-    saveas(gcf, 'roc_curve.png');
+    figure('Name', 'Curva ROC y AUC', 'Position', [100, 100, 700, 700]);
+    area(fpr, tpr, 'FaceColor', [0.00 0.45 0.74], 'FaceAlpha', 0.3, 'EdgeColor', 'none'); hold on;
+    plot(fpr, tpr, '-', 'LineWidth', 2.5, 'Color', [0.00 0.45 0.74], 'DisplayName', 'Curva ROC');
+    plot([0 1], [0 1], '--', 'LineWidth', 1.5, 'Color', [0.5 0.5 0.5], 'DisplayName', 'Clasificador aleatorio');
+    xlabel('Tasa de Falsos Positivos (FPR)', 'FontSize', 13);
+    ylabel('Tasa de Verdaderos Positivos (TPR)', 'FontSize', 13);
+    title(sprintf('Curva ROC (AUC = %.4f)', auc_trap), 'FontSize', 16, 'FontWeight', 'bold');
+    grid on;
+    axis square;
+    legend('Área bajo la curva', 'Curva ROC', 'Clasificador aleatorio', 'Location', 'SouthEast', 'FontSize', 11);
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    print('roc_curve.png', '-dpng', '-r300');
 
     % 6.2 AUC acumulada vs FPR
-    figure('Name','AUC acumulada');
-    plot(fpr, auc_normalized, 'r-', 'LineWidth',1.5);
-    xlabel('FPR'); ylabel('Fracción del área acumulada');
-    title('AUC acumulada (regla del trapecio)');
-    grid on; axis square;
-    saveas(gcf, 'auc_cumulative.png');
+    figure('Name', 'AUC acumulada', 'Position', [100, 100, 1000, 600]);
+    plot(fpr, auc_normalized, '-', 'LineWidth', 2.5, 'Color', [0.85 0.33 0.10]);
+    xlabel('Tasa de Falsos Positivos (FPR)', 'FontSize', 13);
+    ylabel('Fracción del área acumulada', 'FontSize', 13);
+    title('AUC acumulada (regla del trapecio)', 'FontSize', 16, 'FontWeight', 'bold');
+    grid on;
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    print('auc_cumulative.png', '-dpng', '-r300');
 
     % 6.3 Convergencia del AUC de Simpson en función de M
-    figure('Name','Convergencia Simpson');
-    plot(M_values, auc_simpson, '-o', 'Color', [0.5 0.5 0.5], 'LineWidth', 1.5); hold on;
-    yline(auc_trap, 'r--', 'LineWidth',1.2, 'Label','AUC_{trap}');
-    xlabel('Número de nodos M'); ylabel('AUC (Simpson)');
-    title('Convergencia del AUC con la regla de Simpson');
+    figure('Name', 'Convergencia Simpson', 'Position', [100, 100, 1000, 600]);
+    plot(M_values, auc_simpson, '-o', 'LineWidth', 2.5, 'MarkerSize', 8, ...
+         'MarkerFaceColor', [0.47 0.67 0.19], 'Color', [0.47 0.67 0.19], 'DisplayName', 'AUC (Simpson)'); hold on;
+    yline(auc_trap, '--', 'LineWidth', 2, 'Color', [0.85 0.33 0.10], 'DisplayName', 'AUC (Trapecio)');
+    xlabel('Número de nodos (M)', 'FontSize', 13);
+    ylabel('Valor del AUC', 'FontSize', 13);
+    title('Convergencia del AUC con la regla de Simpson', 'FontSize', 16, 'FontWeight', 'bold');
+    legend('Location', 'best', 'FontSize', 11);
     grid on;
-    saveas(gcf, 'auc_convergence.png');
+    set(gca, 'FontSize', 12, 'GridAlpha', 0.3, 'LineWidth', 0.8);
+    box on;
+    print('auc_convergence.png', '-dpng', '-r300');
 
     %% 7. Impresión de resultados principales
     fprintf('AUC calculado mediante regla del trapecio (malla irregular): %.6f\n', auc_trap);
