@@ -83,7 +83,7 @@ octave-cli --silent --eval "run('src/analisis_regresion.m')"
 
 ## Autores
 
-- **Diego Alejandro Flores Quintero** — Universidad del Quindío
+- **Diego Alejandro Flores y Juan Pablo Mora** — Universidad del Quindío
 - Fecha: Octubre 2025
 
 ## Licencia
